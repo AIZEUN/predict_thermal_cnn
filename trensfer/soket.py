@@ -16,10 +16,10 @@ while True:
     
     p = data.decode('utf-8')
 
-    pixels = p.split(',')
+    pixels = p.split(" ")
 
     pixel = np.array(pixels)
-    pixel = np.reshape(pixel,(8,8))
+    #pixel = np.reshape(pixel,(8,8))
     
     f = open("finger.txt",'w')
     f.write(str(pixel))

@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from keras.models import load_model
 import tensorflow as tf
 
+#학습데이터 불러오기
 caltech_dir = "./train_src"
 categories = ["head", "noise", "finger"]
 nb_classes = len(categories)
@@ -23,7 +24,7 @@ y = []
 
 for idx, cat in enumerate(categories):
     
-    #one-hot 돌리기.
+    #one-hot 인코딩.
     label = [0 for i in range(nb_classes)]
     label[idx] = 1
 
@@ -31,21 +32,18 @@ for idx, cat in enumerate(categories):
     files = glob.glob(image_dir+"/*.bmp")
     print(cat, " 파일 길이 : ", len(files))
     for i, f in enumerate(files):
-        img = Image.open(f)
-        img = img.convert("RGB")
-        img = img.resize((image_w, image_h))
+        img = Image.open(f) #변환
+        img = img.convert("RGB") #변환
+        img = img.resize((image_w, image_h)) #변
         data = np.asarray(img)
 
         X.append(data)
         y.append(label)
 
-        if i % 700 == 0:
-            print(cat, " : ", f)
-
 X = np.array(X)
 y = np.array(y)
 
-
+#학습데이터중 훈련데이터와 학습데이터로 분활
 X_train, X_test, y_train, y_test = train_test_split(X, y)
 xy = (X_train, X_test, y_train, y_test)
 np.save("./numpy_data/multi_image_data.npy", xy)
@@ -60,7 +58,7 @@ categories = ["head", "noise", "finger"]
 nb_classes = len(categories)
 
 
-#일반화
+#CNN모델링
 X_train = X_train.astype(float) / 255
 X_test = X_test.astype(float) / 255
 
@@ -79,10 +77,11 @@ model.add(Dropout(0.5))
 model.add(Dense(nb_classes, activation='softmax'))
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 model_dir = './model'
-    
+
+#모델 학습 및 학습된 모델 저장 
 if not os.path.exists(model_dir):
     os.mkdir(model_dir)
-    
+
 model_path = model_dir + '/multi_img_classification.model'
 checkpoint = ModelCheckpoint(filepath=model_path , monitor='val_loss', verbose=1, save_best_only=True)
 early_stopping = EarlyStopping(monitor='val_loss', patience=6)
